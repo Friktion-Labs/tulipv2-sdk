@@ -16,8 +16,8 @@ staging = []
 production = []
 localnet = []
 [dependencies]
-anchor-lang = "0.24.2"
-anchor-spl = "0.24.2"
+anchor-lang = "0.25.0"
+anchor-spl = "0.25.0"
 spl-token = "3.2.0"
 tulipv2-sdk-common = {path = "../common", version = "0.9.22"}
 spl-associated-token-account = "1.0.3"
@@ -32,7 +32,7 @@ so-defi-atrix = "0.1.16"
 bytemuck = "1.7.2"
 [dev-dependencies]
 proptest = "1.0.0"
-solana-client = "=1.9.28"
+solana-client = "=1.10.29"
 data-encoding = "2.3.2"
 ring = "0.16.20"
 type-layout = "0.2.0"
