@@ -299,10 +299,10 @@ filename = "deps/accounts/A49TahKG1c6KsqNhCtjkEYT1TV65LXqq4eGMJUNYXxDQ.json"
 address = "Catx4sg6td3c9y7XRgaNqjvbLTNrkXcWWZQWhCsebbTz"
 filename = "deps/accounts/Catx4sg6td3c9y7XRgaNqjvbLTNrkXcWWZQWhCsebbTz.json"
 
-# name = "YOUR USDC TOKEN ACCOUNT"
-[[test.validator.account]]
-address = "BH5mFFmBZwgQ6Yr3812qKbf42wP57jzHta2LeDT7gXwU"
-filename = "deps/accounts/BH5mFFmBZwgQ6Yr3812qKbf42wP57jzHta2LeDT7gXwU.json"
+# # name = "YOUR USDC TOKEN ACCOUNT"
+# [[test.validator.account]]
+# address = "BH5mFFmBZwgQ6Yr3812qKbf42wP57jzHta2LeDT7gXwU"
+# filename = "deps/accounts/BH5mFFmBZwgQ6Yr3812qKbf42wP57jzHta2LeDT7gXwU.json"
 
 # name = "YOUR ORCA TOKEN ACCOUNT"
 [[test.validator.account]]

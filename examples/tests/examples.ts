@@ -5,6 +5,8 @@ import * as BufferLayout from "buffer-layout";
 import * as serumAssoToken from "@project-serum/associated-token";
 import * as splToken from "@solana/spl-token";
 import * as assert from "assert";
+
+anchor.utils.features.set("debug-logs");
 import {
   createAssociatedTokenAccount,
   deriveMultiDepositStateTransitionAddress,
@@ -359,6 +361,8 @@ describe("examples", () => {
       provider.wallet.publicKey,
       usdcTokenMint
     );
+    console.log('underlying token account = ', yourUnderlyingTokenAccount.toString());
+    
     yourSharesTokenAccount = await createAssociatedTokenAccount(
       provider,
       provider.wallet.publicKey,
