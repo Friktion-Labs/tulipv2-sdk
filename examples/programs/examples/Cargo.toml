@@ -16,8 +16,8 @@ cpi = ["no-entrypoint"]
 default = []
 
 [dependencies]
-anchor-lang = "0.25.0"
-anchor-spl = "0.25.0"
+anchor-lang = { git = "https://github.com/Friktion-Labs/anchor" }
+anchor-spl = { git = "https://github.com/Friktion-Labs/anchor" }
 tulipv2-sdk-common = {path = "../../../common", version = "0.9.19"}
 tulipv2-sdk-vaults = {path = "../../../vaults", version = "0.9.19"}
 tulipv2-sdk-farms = {path = "../../../farms", version = "0.9.19"}

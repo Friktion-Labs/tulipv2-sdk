@@ -16,8 +16,8 @@ staging = []
 production = []
 localnet = []
 [dependencies]
-anchor-lang = "0.25.0"
-anchor-spl = "0.25.0"
+anchor-lang = { git = "https://github.com/Friktion-Labs/anchor" }
+anchor-spl = { git = "https://github.com/Friktion-Labs/anchor" }
 spl-token = "3.2.0"
 tulipv2-sdk-common = {path = "../common", version = "0.9.22"}
 spl-associated-token-account = "1.0.3"

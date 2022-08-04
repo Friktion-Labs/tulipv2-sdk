@@ -10,8 +10,8 @@ documentation = "https://docs.rs/tulipv2-sdk-common"
 readme = "../README.md"
 
 [dependencies]
-anchor-lang = "0.25.0"
-anchor-spl = "0.25.0"
+anchor-lang = { git = "https://github.com/Friktion-Labs/anchor" }
+anchor-spl = { git = "https://github.com/Friktion-Labs/anchor" }
 spl-token = "3.2.0"
 tulip-arrform = "0.1.1"
 uint = "0.8"
@@ -27,7 +27,7 @@ so-defi-utils = "0.1.0"
 spl-associated-token-account = "1.0.3"
 sighashdb = "0.1.39"
 [dev-dependencies]
-anchor-client = "0.25.0"
+anchor-client = { git = "https://github.com/Friktion-Labs/anchor" }
 
 [features]
 default = [
