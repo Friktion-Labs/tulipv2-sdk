@@ -82,36 +82,34 @@ pub mod multi_deposit {
         pub fn withdraw_deposit_tracking_ix(user: Pubkey) -> impl WithdrawDepositTracking {
             WithdrawDepositTrackingAddresses::new(user, ACCOUNT, SHARES_MINT)
         }
+
+        #[inline(never)]
         pub fn withdraw_multi_deposit_optimizer_vault(
             user: Pubkey,
             platform: Platform,
         ) -> std::result::Result<Box<impl WithdrawMultiOptimizerVault>, std::io::Error> {
             let (standalone_config, platform_config) = if platform.eq(&Platform::MangoV3) {
                 (
-                    (
-                        ProgramConfig::get_mango_remaining_accounts().to_vec(),
-                        platform,
-                    ),
+                    (ProgramConfig::get_mango_remaining_accounts(), platform),
                     super::mango::platform_config(),
                 )
             } else if platform.eq(&Platform::Solend) {
                 (
-                    (
-                        ProgramConfig::get_solend_remaining_accounts().to_vec(),
-                        platform,
-                    ),
+                    (ProgramConfig::get_solend_remaining_accounts(), platform),
                     super::solend::platform_config(),
                 )
             } else {
                 (
-                    (
-                        ProgramConfig::get_tulip_remaining_accounts().to_vec(),
-                        platform,
-                    ),
+                    (ProgramConfig::get_tulip_remaining_accounts(), platform),
                     super::tulip::platform_config(),
                 )
             };
-            Ok(Box::new(WithdrawAddresses::new(
+            // let ret = unsafe {
+            //     let layout = Layout::new::<BigStruct>();
+            //     let raw_allocation = alloc_zeroed(layout) as *mut BigStruct;
+            //     Box::from_raw(raw_allocation)
+            //   };
+            let ret = (box WithdrawAddresses::new(
                 user,
                 ACCOUNT,
                 PDA,
@@ -120,12 +118,13 @@ pub mod multi_deposit {
                 UNDERLYING_WITHDRAW_QUEUE,
                 platform_config,
                 (&standalone_config.0, standalone_config.1),
-            )?))
+            )?);
+            Ok(ret)
         }
 
-        #[inline(always)]
-        pub fn get_tulip_remaining_accounts() -> [Pubkey; 7] {
-            [
+        #[inline(never)]
+        pub fn get_tulip_remaining_accounts() -> Vec<Pubkey> {
+            vec![
                 super::tulip::COLLATERAL_TOKEN_ACCOUNT,
                 super::tulip::RESERVE_ACCOUNT,
                 super::tulip::RESERVE_LIQUIDITY_ACCOUNT,
@@ -137,8 +136,8 @@ pub mod multi_deposit {
         }
 
         #[inline(always)]
-        pub fn get_solend_remaining_accounts() -> [Pubkey; 8] {
-            [
+        pub fn get_solend_remaining_accounts() -> Vec<Pubkey> {
+            vec![
                 super::solend::COLLATERAL_TOKEN_ACCOUNT,
                 super::solend::RESERVE_ACCOUNT,
                 super::solend::RESERVE_LIQUIDITY_ACCOUNT,
@@ -151,8 +150,8 @@ pub mod multi_deposit {
         }
 
         #[inline(always)]
-        pub fn get_mango_remaining_accounts() -> [Pubkey; 7] {
-            [
+        pub fn get_mango_remaining_accounts() -> Vec<Pubkey> {
+            vec![
                 super::mango::GROUP,
                 super::mango::OPTIMIZER_MANGO_ACCOUNT,
                 super::mango::CACHE,
@@ -496,7 +495,7 @@ pub mod tulip {
     pub const COLLATERAL_TOKEN_ACCOUNT: Pubkey =
         static_pubkey!("2U6kk4iTVqeypBydVPKA8mLTLAQEBfWf4KYfmkcvomPE");
 
-    #[inline(always)]
+    #[inline(never)]
     pub fn platform_config() -> PlatformConfigAddresses {
         PlatformConfigAddresses {
             vault: ACCOUNT,

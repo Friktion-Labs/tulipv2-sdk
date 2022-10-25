@@ -1,6 +1,7 @@
 use crate::implementations::into_withdraw_orca_farm;
 use anchor_lang::prelude::*;
 use anchor_spl::token::{Mint, TokenAccount};
+use solana_program::instruction::Instruction;
 use tulipv2_sdk_common::config::deposit_tracking::traits::IssueShares;
 use tulipv2_sdk_common::config::deposit_tracking::traits::RegisterDepositTracking;
 use tulipv2_sdk_common::config::deposit_tracking::traits::WithdrawDepositTracking;
@@ -8,6 +9,9 @@ use tulipv2_sdk_common::config::strategy::traits::WithdrawMultiOptimizerVault;
 use tulipv2_sdk_common::config::strategy::{Platform, StrategyVaults};
 use tulipv2_sdk_common::msg_panic;
 use tulipv2_sdk_farms::Farm;
+use tulipv2_sdk_vaults::accounts::lending_optimizer::LendingOptimizerV1;
+use tulipv2_sdk_vaults::accounts::lending_optimizer::LendingPlatformV1;
+use tulipv2_sdk_vaults::accounts::multi_optimizer::MultiDepositOptimizerV1;
 use tulipv2_sdk_vaults::instructions::{
     deposit_tracking::{
         new_register_deposit_tracking_account_ix, new_withdraw_deposit_tracking_ix,
@@ -15,10 +19,6 @@ use tulipv2_sdk_vaults::instructions::{
     multi_deposit_optimizer::new_withdraw_multi_deposit_optimizer_vault_ix,
     new_issue_shares_ix,
 };
-use tulipv2_sdk_vaults::accounts::multi_optimizer::MultiDepositOptimizerV1;
-use tulipv2_sdk_vaults::accounts::lending_optimizer::LendingPlatformV1;
-use tulipv2_sdk_vaults::accounts::lending_optimizer::LendingOptimizerV1;
-use solana_program::instruction::Instruction;
 pub mod implementations;
 use sighashdb::GlobalSighashDB;
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
@@ -245,12 +245,12 @@ pub mod examples {
                         ctx.accounts.vault.clone(),
                         ctx.accounts.deposit_tracking_account.clone(),
                         ctx.accounts.deposit_tracking_queue_account.clone(),
-                        ctx.accounts.deposit_tracking_h.old_account.clone(),
+                        ctx.accounts.deposit_tracking_hold_account.clone(),
                         ctx.accounts.shares_mint.to_account_info(),
                         ctx.accounts.deposit_tracking_pda.clone(),
                         ctx.accounts.rent.to_account_info(),
                         ctx.accounts.token_program.clone(),
-                        ctx.accounts.rent.to_aclendingcount_info(),
+                        ctx.accounts.rent.to_account_info(),
                         ctx.accounts.system_program.to_account_info(),
                     ],
                 )?;
@@ -1802,7 +1802,6 @@ pub mod examples {
         Ok(())
     }
 
-
     /// rebases a multi-deposit optimizer vualt against all standalone vaults.
     /// the standalone vaults must be rebased within 240 slots (~2min) of the multi-deposit
     /// being rebased. The `remaining_accounts` are used to provide the standalone vault account
@@ -1814,20 +1813,29 @@ pub mod examples {
     ///
     /// `multi_shares_account` is the multi-deposit optimizer vault's token account
     /// whichs holds the vault shares issued by the given standaloen vault
-    /// 
+    ///
     /// the very first remaining account is the v2 vault program
     pub fn rebase_multi_deposit_optimizer_vault<'a, 'b, 'c, 'info>(
         ctx: Context<'a, 'b, 'c, 'info, RebaseMultiDepositOptimizerVault<'info>>,
     ) -> Result<()> {
         let ix = {
-            let ix_data = GlobalSighashDB.get("rebase_multi_deposit_optimizer_vault").unwrap();
+            let ix_data = GlobalSighashDB
+                .get("rebase_multi_deposit_optimizer_vault")
+                .unwrap();
             let mut accounts = ctx.accounts.to_account_metas(None);
             // skip the first element which is the vault progrma
-            accounts.extend_from_slice(&ctx.remaining_accounts[1..].iter().map(|acct| if acct.is_writable {
-                AccountMeta::new(*acct.key, acct.is_signer)
-            } else {
-                AccountMeta::new_readonly(*acct.key, acct.is_signer)
-            }).collect::<Vec<AccountMeta>>()[..]);
+            accounts.extend_from_slice(
+                &ctx.remaining_accounts[1..]
+                    .iter()
+                    .map(|acct| {
+                        if acct.is_writable {
+                            AccountMeta::new(*acct.key, acct.is_signer)
+                        } else {
+                            AccountMeta::new_readonly(*acct.key, acct.is_signer)
+                        }
+                    })
+                    .collect::<Vec<AccountMeta>>()[..],
+            );
             let ix = Instruction {
                 program_id: ctx.remaining_accounts[0].key(),
                 data: ix_data.to_vec(),
@@ -1837,10 +1845,7 @@ pub mod examples {
         };
         let mut accounts = ctx.accounts.to_account_infos();
         accounts.extend_from_slice(&ctx.remaining_accounts[..]);
-        anchor_lang::solana_program::program::invoke(
-            &ix,
-            &accounts[..],
-        )?;
+        anchor_lang::solana_program::program::invoke(&ix, &accounts[..])?;
         Ok(())
     }
     /// rebases a vault's total deposited balance to match the deposited
@@ -1885,14 +1890,23 @@ pub mod examples {
         mut ctx: Context<'a, 'b, 'c, 'info, RebaseLendingOptimizerVault<'info>>,
     ) -> Result<()> {
         let ix = {
-            let ix_data = GlobalSighashDB.get("rebase_lending_optimizer_vault").unwrap();
+            let ix_data = GlobalSighashDB
+                .get("rebase_lending_optimizer_vault")
+                .unwrap();
             let mut accounts = ctx.accounts.to_account_metas(None);
             // skip the first element which is the vault progrma
-            accounts.extend_from_slice(&ctx.remaining_accounts[1..].iter().map(|acct| if acct.is_writable {
-                AccountMeta::new(*acct.key, acct.is_signer)
-            } else {
-                AccountMeta::new_readonly(*acct.key, acct.is_signer)
-            }).collect::<Vec<AccountMeta>>()[..]);
+            accounts.extend_from_slice(
+                &ctx.remaining_accounts[1..]
+                    .iter()
+                    .map(|acct| {
+                        if acct.is_writable {
+                            AccountMeta::new(*acct.key, acct.is_signer)
+                        } else {
+                            AccountMeta::new_readonly(*acct.key, acct.is_signer)
+                        }
+                    })
+                    .collect::<Vec<AccountMeta>>()[..],
+            );
             let ix = Instruction {
                 program_id: ctx.remaining_accounts[0].key(),
                 data: ix_data.to_vec(),
@@ -1902,13 +1916,9 @@ pub mod examples {
         };
         let mut accounts = ctx.accounts.to_account_infos();
         accounts.extend_from_slice(&ctx.remaining_accounts[..]);
-        anchor_lang::solana_program::program::invoke(
-            &ix,
-            &accounts[..],
-        )?;
+        anchor_lang::solana_program::program::invoke(&ix, &accounts[..])?;
         Ok(())
     }
-
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize)]
@@ -2972,7 +2982,6 @@ pub struct PermissionedIssueSharesInstruction<'info> {
     /// CHECK: .
     pub token_program: AccountInfo<'info>,
 }
-
 
 #[derive(Accounts)]
 pub struct RebaseLendingOptimizerVault<'info> {

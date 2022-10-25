@@ -72,7 +72,7 @@ pub struct MangoStandaloneAddresses {
 }
 
 impl WithdrawAddresses {
-    #[inline(always)]
+    #[inline(never)]
     pub fn new(
         user: Pubkey,
         vault: Pubkey,
