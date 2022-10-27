@@ -150,6 +150,9 @@ pub trait MultiVaultProgramConfig {
         &self,
         user: Pubkey,
         platform: Platform,
+        multi_burning_shares_token_account_option: Option<Pubkey>,
+        withdraw_burning_shares_token_account_option: Option<Pubkey>,
+        receiving_underlying_token_account_option: Option<Pubkey>,
     ) -> std::result::Result<Box<dyn WithdrawMultiOptimizerVault>, std::io::Error>;
     /// returns the remaining accounts needed for withdrawal instructions to the specific platform
     fn remaining_accounts(&self, platform: Platform) -> Vec<Pubkey>;

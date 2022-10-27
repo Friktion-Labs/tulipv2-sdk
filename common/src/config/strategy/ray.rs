@@ -119,6 +119,9 @@ pub mod multi_deposit {
                 UNDERLYING_WITHDRAW_QUEUE,
                 platform_config,
                 (&standalone_config.0, standalone_config.1),
+                None,
+                None,
+                None,
             )?))
         }
         #[inline(always)]
@@ -212,6 +215,9 @@ pub mod multi_deposit {
             &self,
             user: Pubkey,
             platform: Platform,
+            multi_burning_shares_token_account_option: Option<Pubkey>,
+            withdraw_burning_shares_token_account_option: Option<Pubkey>,
+            receiving_underlying_token_account_option: Option<Pubkey>,
         ) -> std::result::Result<Box<dyn WithdrawMultiOptimizerVault>, std::io::Error> {
             Ok(ProgramConfig::withdraw_multi_deposit_optimizer_vault(
                 user, platform,

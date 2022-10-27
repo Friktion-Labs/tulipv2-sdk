@@ -87,6 +87,9 @@ pub mod multi_deposit {
         pub fn withdraw_multi_deposit_optimizer_vault(
             user: Pubkey,
             platform: Platform,
+            multi_burning_shares_token_account_option: Option<Pubkey>,
+            withdraw_burning_shares_token_account_option: Option<Pubkey>,
+            receiving_underlying_token_account_option: Option<Pubkey>,
         ) -> std::result::Result<Box<impl WithdrawMultiOptimizerVault>, std::io::Error> {
             let (standalone_config, platform_config) = if platform.eq(&Platform::MangoV3) {
                 (
@@ -104,12 +107,8 @@ pub mod multi_deposit {
                     super::tulip::platform_config(),
                 )
             };
-            // let ret = unsafe {
-            //     let layout = Layout::new::<BigStruct>();
-            //     let raw_allocation = alloc_zeroed(layout) as *mut BigStruct;
-            //     Box::from_raw(raw_allocation)
-            //   };
-            let ret = (box WithdrawAddresses::new(
+
+            let ret = box WithdrawAddresses::new(
                 user,
                 ACCOUNT,
                 PDA,
@@ -118,7 +117,11 @@ pub mod multi_deposit {
                 UNDERLYING_WITHDRAW_QUEUE,
                 platform_config,
                 (&standalone_config.0, standalone_config.1),
-            )?);
+                multi_burning_shares_token_account_option,
+                withdraw_burning_shares_token_account_option,
+                receiving_underlying_token_account_option,
+            )?;
+
             Ok(ret)
         }
 
@@ -214,9 +217,16 @@ pub mod multi_deposit {
             &self,
             user: Pubkey,
             platform: Platform,
+            multi_burning_shares_token_account_option: Option<Pubkey>,
+            withdraw_burning_shares_token_account_option: Option<Pubkey>,
+            receiving_underlying_token_account_option: Option<Pubkey>,
         ) -> std::result::Result<Box<dyn WithdrawMultiOptimizerVault>, std::io::Error> {
             Ok(ProgramConfig::withdraw_multi_deposit_optimizer_vault(
-                user, platform,
+                user,
+                platform,
+                multi_burning_shares_token_account_option,
+                withdraw_burning_shares_token_account_option,
+                receiving_underlying_token_account_option,
             )?)
         }
         fn remaining_accounts(&self, platform: Platform) -> Vec<Pubkey> {
@@ -298,7 +308,7 @@ pub mod solend {
     /// of the oracle keys array
     pub const PYTH_PRICE_ACCOUNT: Pubkey =
         static_pubkey!("Gnt27xtC473ZT2Mw5u8wZ68Z3gULkSTb5DuxJy7eJotD");
-    /// address of the oracle that goes into the second element
+    /// addr ess of the oracle that goes into the second element
     /// of the oracle keys array
     pub const SWITCHBOARD_PRICE_ACCOUNT: Pubkey =
         static_pubkey!("BjUgj6YCnFBZ49wF54ddBVA9qu8TeqkFtkbqmZcee8uW");

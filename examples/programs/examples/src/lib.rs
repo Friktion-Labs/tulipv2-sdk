@@ -631,6 +631,9 @@ pub mod examples {
                 .withdraw_multi_deposit_optimizer_vault(
                     *ctx.accounts.common_data.authority.key,
                     Platform::MangoV3,
+                    None,
+                    None,
+                    None,
                 )
                 .unwrap();
             let ix = withdraw_trait.instruction(amount).unwrap();
@@ -709,6 +712,9 @@ pub mod examples {
                 .withdraw_multi_deposit_optimizer_vault(
                     *ctx.accounts.common_data.authority.key,
                     Platform::Solend,
+                    None,
+                    None,
+                    None,
                 )
                 .unwrap();
             let ix = withdraw_trait.instruction(amount).unwrap();
@@ -796,6 +802,9 @@ pub mod examples {
                 .withdraw_multi_deposit_optimizer_vault(
                     *ctx.accounts.common_data.authority.key,
                     Platform::Tulip,
+                    None,
+                    None,
+                    None,
                 )
                 .unwrap();
             let ix = withdraw_trait.instruction(amount).unwrap();

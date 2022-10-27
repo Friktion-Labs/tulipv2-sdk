@@ -10,7 +10,7 @@ use solana_program::instruction::AccountMeta;
 use solana_program::instruction::Instruction;
 use solana_program::sysvar;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct WithdrawAddresses {
     pub authority: Pubkey,
     pub multi_vault: Pubkey,
@@ -26,7 +26,7 @@ pub struct WithdrawAddresses {
     pub mango_standalone_addresses: Option<MangoStandaloneAddresses>,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct PlatformConfigAddresses {
     pub vault: Pubkey,
     pub vault_pda: Pubkey,
@@ -37,7 +37,7 @@ pub struct PlatformConfigAddresses {
     pub lending_program: Pubkey,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct TulipStandaloneAddresses {
     pub collateral_token_account: Pubkey,
     pub reserve: Pubkey,
@@ -48,7 +48,7 @@ pub struct TulipStandaloneAddresses {
     pub pyth_price_account: Pubkey,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct SolendStandaloneAddresses {
     pub collateral_token_account: Pubkey,
     pub reserve: Pubkey,
@@ -60,7 +60,7 @@ pub struct SolendStandaloneAddresses {
     pub switchboard_price_account: Pubkey,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct MangoStandaloneAddresses {
     pub group: Pubkey,
     pub optimizer_mango_account: Pubkey,
@@ -82,19 +82,24 @@ impl WithdrawAddresses {
         underlying_withdraw_queue: Pubkey,
         platform_config: PlatformConfigAddresses,
         standalone_config: (&[Pubkey], Platform),
+        multi_burning_shares_token_account_option: Option<Pubkey>,
+        withdraw_burning_shares_token_account_option: Option<Pubkey>,
+        receiving_underlying_token_account_option: Option<Pubkey>,
     ) -> std::result::Result<WithdrawAddresses, std::io::Error> {
         let multi_burning_shares_token_account =
-            spl_associated_token_account::get_associated_token_address(&user, &shares_mint);
-
-        let withdraw_burning_shares_token_account =
-            spl_associated_token_account::get_associated_token_address(
+            multi_burning_shares_token_account_option.unwrap_or(
+                spl_associated_token_account::get_associated_token_address(&user, &shares_mint),
+            );
+        let withdraw_burning_shares_token_account = withdraw_burning_shares_token_account_option
+            .unwrap_or(spl_associated_token_account::get_associated_token_address(
                 &vault_pda,
                 &platform_config.shares_mint,
-            );
+            ));
 
         let receiving_underlying_token_account =
-            spl_associated_token_account::get_associated_token_address(&user, &underlying_mint);
-
+            receiving_underlying_token_account_option.unwrap_or(
+                spl_associated_token_account::get_associated_token_address(&user, &underlying_mint),
+            );
         let mut withdraw_addresses = WithdrawAddresses {
             authority: user,
             multi_vault: vault,
