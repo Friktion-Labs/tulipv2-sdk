@@ -108,7 +108,7 @@ pub mod multi_deposit {
                 )
             };
 
-            let ret = box WithdrawAddresses::new(
+            let ret = Box::new(WithdrawAddresses::new(
                 user,
                 ACCOUNT,
                 PDA,
@@ -120,7 +120,7 @@ pub mod multi_deposit {
                 multi_burning_shares_token_account_option,
                 withdraw_burning_shares_token_account_option,
                 receiving_underlying_token_account_option,
-            )?;
+            )?);
 
             Ok(ret)
         }

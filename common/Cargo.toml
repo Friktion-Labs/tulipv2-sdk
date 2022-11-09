@@ -26,6 +26,7 @@ solana-program = "=1.10.29"
 so-defi-utils = "0.1.0"
 spl-associated-token-account = "1.0.3"
 sighashdb = "0.1.39"
+
 [dev-dependencies]
 anchor-client = { git = "https://github.com/Friktion-Labs/anchor" }
 
